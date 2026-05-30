@@ -1,376 +1,51 @@
 # EngineRus OS
 
-> The centralized motorcycle service, inventory, customer, and marketplace operations platform powering **Dr. Engine R'us** and **Visayas Moto Hub**.
+EngineRus OS is an internal motorcycle commerce and service operations platform for Dr. Engine R'us, integrated with Visayas Moto Hub.
 
----
+## Stack
 
-## Overview
+- Next.js App Router, TypeScript, Tailwind CSS, shadcn-style primitives
+- Supabase Auth, PostgreSQL, Storage, and Row Level Security
+- React Hook Form, Zod, TanStack Table, Recharts, Sonner
+- PWA manifest, service worker, app icon, and offline fallback
 
-EngineRus OS is the internal operational platform designed to manage the complete motorcycle ownership lifecycle within the Engine R'us ecosystem.
+## Environment
 
-The platform centralizes:
+Copy `.env.example` and set:
 
-* Service Operations
-* Motorcycle Registry
-* Motorcycle Health Records
-* Inventory Management
-* Customer Relationship Management (CRM)
-* Dyno Tuning Records
-* ECU Remapping Records
-* Marketplace Synchronization
-* Analytics & Reporting
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_APP_URL=
+```
 
-Unlike traditional service center software, EngineRus OS focuses on building a complete digital history for every motorcycle serviced by Dr. Engine R'us.
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is also supported for newer Supabase key formats.
 
----
+## Routes
 
-## Ecosystem Architecture
+- Auth: `/login`, `/forgot-password`
+- Dashboard: `/dashboard`
+- Operations: `/dashboard/service-operations`, `/dashboard/job-orders`, `/dashboard/service-queue`
+- Moto records: `/dashboard/dyno-management`, `/dashboard/motorcycle-registry`, `/dashboard/health-records`
+- Business: `/dashboard/customers`, `/dashboard/inventory`, `/dashboard/marketplace-sync`, `/dashboard/reports`
+- Controls: `/dashboard/notifications`, `/dashboard/audit-trail`, `/dashboard/settings`
 
-### 🏍️ Dr. Engine R'us
+## Supabase
 
-Motorcycle Performance & Service Center
+Apply migrations in order:
 
-Services:
+1. `supabase/migrations/202605290001_init_vendora.sql`
+2. `supabase/migrations/202605300001_enginerus_os.sql`
 
-* Dyno Tuning
-* ECU Remapping
-* Diagnostics
-* Preventive Maintenance Service (PMS)
-* General Repairs
-* Performance Upgrades
-* Motorcycle Inspection
-* Technical Consultation
+The EngineRus migration adds motorcycle registry, bookings, job orders, queue, dyno sessions, health records, maintenance schedules, inventory extensions, marketplace listings, notifications, audit logs, storage buckets, and role-based RLS policies.
 
----
+## Development
 
-### 🛒 Visayas Moto Hub
-
-Motorcycle Marketplace Platform
-
-Features:
-
-* Motorcycle Buy & Sell
-* Parts Marketplace
-* Accessories Marketplace
-* Service Booking
-* Product Listings
-* Shop Directory
-* Promotions
-
----
-
-### ⚙️ EngineRus OS
-
-Internal Operations Platform
-
-Features:
-
-* Service Management
-* Motorcycle Registry
-* Motorcycle Health Records
-* Inventory Management
-* Customer Management
-* Marketplace Synchronization
-* Reporting & Analytics
-
----
-
-# Core Modules
-
-## Service Operations
-
-Manage the entire motorcycle service workflow.
-
-Features:
-
-* Service Booking
-* Walk-in Registration
-* Job Orders
-* Service Queue
-* Mechanic Assignment
-* Bay Management
-* Service Progress Tracking
-* Service Completion Workflow
-
----
-
-## Dyno & Tuning Management
-
-Built specifically for Dr. Engine R'us operations.
-
-Features:
-
-* Dyno Sessions
-* Torque Monitoring
-* Horsepower Monitoring
-* Air/Fuel Ratio Tracking
-* ECU Remapping Records
-* Dyno Report Storage
-* Performance Comparison History
-
----
-
-## Motorcycle Registry
-
-Centralized motorcycle master records.
-
-Features:
-
-* Engine Number Tracking
-* Chassis Number Tracking
-* Plate Number Records
-* Ownership History
-* Warranty Information
-* Motorcycle Specifications
-
----
-
-## Motorcycle Health Record (MHR)
-
-### Flagship Feature
-
-The Motorcycle Health Record acts as the digital medical record of every motorcycle.
-
-Each motorcycle maintains:
-
-* Owner History
-* Service History
-* Maintenance History
-* Dyno Results
-* ECU Maps
-* AFR Logs
-* Parts Replacement History
-* Performance Upgrade History
-* Warranty Records
-* Maintenance Schedule
-
-### Example
-
-#### Honda Click 160
-
-| Record          | Value        |
-| --------------- | ------------ |
-| Purchased       | January 2026 |
-| Last PMS        | March 2026   |
-| Last Dyno       | April 2026   |
-| ECU Map         | Stage 1      |
-| Current Mileage | 15,200 KM    |
-
-Installed Parts:
-
-* Racing CVT
-* Performance Exhaust
-* NGK Iridium Spark Plug
-* Racing Coil
-
----
-
-## Inventory Management
-
-Manage all operational inventory.
-
-Categories:
-
-* Performance Parts
-* Engine Components
-* Tires
-* Lubricants
-* Safety Gear
-* Accessories
-
-Features:
-
-* Stock Receiving
-* Stock Transfers
-* Stock Adjustments
-* Supplier Management
-* Low Stock Alerts
-* Inventory Auditing
-
----
-
-## Customer Relationship Management (CRM)
-
-Manage customer information and motorcycle ownership records.
-
-Features:
-
-* Customer Profiles
-* Customer Garage
-* Motorcycle Ownership Records
-* Loyalty Tracking
-* Service Reminders
-* Customer Activity History
-
----
-
-## Marketplace Synchronization
-
-Synchronize inventory with Visayas Moto Hub.
-
-Features:
-
-* Publish Motorcycles
-* Publish Parts
-* Publish Accessories
-* Marketplace Availability Sync
-* Service Booking Integration
-
----
-
-## Reporting & Analytics
-
-Operational insights and performance monitoring.
-
-Features:
-
-* Service Analytics
-* Inventory Analytics
-* Customer Analytics
-* Dyno Performance Analytics
-* Staff Productivity Tracking
-
----
-
-# User Roles
-
-## Administrator
-
-Full system access.
-
-Responsibilities:
-
-* User Management
-* Branch Management
-* Configuration
-* Reporting
-
----
-
-## Service Advisor
-
-Responsibilities:
-
-* Customer Registration
-* Service Booking
-* Job Order Creation
-* Customer Communication
-
----
-
-## Mechanic
-
-Responsibilities:
-
-* View Assigned Jobs
-* Update Service Status
-* Record Findings
-* Complete Work Orders
-
----
-
-## Dyno Technician
-
-Responsibilities:
-
-* Dyno Session Management
-* Dyno Reporting
-* ECU Remapping Records
-
----
-
-## Inventory Personnel
-
-Responsibilities:
-
-* Inventory Management
-* Stock Monitoring
-* Stock Receiving
-
----
-
-## Management
-
-Responsibilities:
-
-* Business Monitoring
-* Operational Analytics
-* Performance Tracking
-
----
-
-# Technology Stack
-
-## Frontend
-
-* Next.js
-* TypeScript
-* Tailwind CSS
-* shadcn/ui
-
-## Backend
-
-* Supabase
-* PostgreSQL
-* Supabase Auth
-* Supabase Storage
-* Realtime Services
-
-## Infrastructure
-
-* Vercel
-* Cloudflare
-* Supabase
-
----
-
-# Project Goals
-
-* Digitize all service operations
-* Create complete motorcycle lifecycle records
-* Improve customer retention
-* Centralize inventory management
-* Integrate marketplace operations
-* Build the most comprehensive motorcycle ownership ecosystem in the Philippines
-
----
-
-# Future Roadmap
-
-## Phase 1
-
-* Service Operations
-* Motorcycle Registry
-* Inventory Management
-* CRM
-* Marketplace Sync
-
-## Phase 2
-
-* Customer Mobile App
-* Mechanic Mobile Portal
-* QR Service Cards
-* Motorcycle Health Dashboard
-
-## Phase 3
-
-* AI Service Recommendations
-* Predictive Maintenance
-* Motorcycle Health Score
-* Advanced Dyno Analytics
-
----
-
-# Vision
-
-To become the leading motorcycle service and ownership ecosystem in the Philippines by providing complete digital records, performance tracking, and lifecycle management for every motorcycle serviced by Dr. Engine R'us.
-
----
-
-## License
-
-Private Internal Software
-
-EngineRus OS is proprietary software developed exclusively for the operations of Dr. Engine R'us and Visayas Moto Hub.
-
-© Engine R'us. All Rights Reserved.
+```bash
+npm install
+npm run dev
+npm run typecheck
+npm run lint
+npm run build
+```

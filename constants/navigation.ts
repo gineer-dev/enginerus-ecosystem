@@ -1,0 +1,47 @@
+import {
+  BarChart3,
+  Boxes,
+  Building2,
+  ClipboardCheck,
+  FileBarChart,
+  Gauge,
+  Handshake,
+  Landmark,
+  MessagesSquare,
+  PackagePlus,
+  ReceiptText,
+  Settings,
+  ShieldCheck,
+  ShoppingCart,
+  Users,
+  Wrench,
+} from "lucide-react";
+
+export const marketplaceNav = [
+  { href: "/", label: "Marketplace" },
+  { href: "/shop", label: "Shop" },
+  { href: "/service", label: "Service" },
+  { href: "/categories", label: "Categories" },
+  { href: "/favorites", label: "Favorites" },
+  { href: "/inquiries", label: "Inquiries" },
+  { href: "/reservations", label: "Reservations" },
+];
+
+export const dashboardNav = [
+  { href: "/dashboard", label: "Overview", icon: Gauge },
+  { href: "/dashboard/products", label: "Products", icon: PackagePlus },
+  { href: "/dashboard/inventory", label: "Inventory", icon: Boxes },
+  { href: "/dashboard/inquiries", label: "Inquiries", icon: MessagesSquare },
+  { href: "/dashboard/reservations", label: "Reservations", icon: Handshake },
+  { href: "/dashboard/sales", label: "Sales", icon: ShoppingCart },
+  { href: "/dashboard/customers", label: "Customers", icon: Users },
+  { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
+  { href: "/dashboard/inspections", label: "Inspections", icon: ClipboardCheck },
+  { href: "/dashboard/expenses", label: "Expenses", icon: ReceiptText },
+  { href: "/dashboard/reports", label: "Reports", icon: FileBarChart },
+  { href: "/dashboard/branches", label: "Branches", icon: Building2 },
+  { href: "/dashboard/users", label: "Users", icon: ShieldCheck },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/audit-logs", label: "Audit Logs", icon: BarChart3 },
+  { href: "/dashboard/expenses", label: "Finance", icon: Landmark },
+];

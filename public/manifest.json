@@ -1,0 +1,23 @@
+{
+  "name": "EngineRus OS",
+  "short_name": "EngineRus",
+  "description": "Internal motorcycle commerce and service operations platform for Dr. Engine R'us and Visayas Moto Hub.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f3f0eb",
+  "theme_color": "#782324",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Dashboard", "url": "/dashboard" },
+    { "name": "Job Orders", "url": "/dashboard/job-orders" },
+    { "name": "Service Queue", "url": "/dashboard/service-queue" }
+  ]
+}
