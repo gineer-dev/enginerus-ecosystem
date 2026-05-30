@@ -1,0 +1,13 @@
+<svg width="420" height="180" viewBox="0 0 420 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Visayas Moto Hub</title>
+  <desc id="desc">Visayas Moto Hub wordmark in red script with Moto Hub lockup.</desc>
+  <rect width="420" height="180" fill="white"/>
+  <text x="34" y="104" fill="#a80000" font-family="'Brush Script MT', 'Segoe Script', 'Snell Roundhand', cursive" font-size="104" font-style="italic" font-weight="700" letter-spacing="-5">
+    Visayas
+  </text>
+  <text x="103" y="137" fill="#343434" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900" letter-spacing="1.5">
+    MOTO HUB
+  </text>
+  <path d="M103 148H262" stroke="#a80000" stroke-width="4" stroke-linecap="round"/>
+  <path d="M163 148C168 148 168 156 174 156C180 156 180 148 185 148" stroke="#a80000" stroke-width="4" stroke-linecap="round"/>
+</svg>

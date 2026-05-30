@@ -2,6 +2,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export type TableRow = Record<string, string | number | boolean | null | undefined>;
 type AnyRow = Record<string, unknown>;
+export type DashboardChartSeries = {
+  serviceVolume: Array<{ day: string; PMS: number; Diagnostics: number; Dyno: number }>;
+  jobStatus: Array<{ name: string; value: number }>;
+  inventoryMovement: Array<{ day: string; Receive: number; Usage: number }>;
+  dynoTrend: Array<{ month: string; sessions: number }>;
+};
 
 function text(value: unknown) {
   if (typeof value === "string" && value.length > 0) return value;
@@ -72,6 +78,86 @@ export async function getDashboardMetrics() {
     openNotifications: notifications.count ?? 0,
     revenue: revenueTotal,
   };
+}
+
+function dayLabel(date: Date) {
+  return new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
+}
+
+function monthLabel(date: Date) {
+  return new Intl.DateTimeFormat("en-US", { month: "short" }).format(date);
+}
+
+function dateKey(value: string) {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+export async function getDashboardChartSeries(): Promise<DashboardChartSeries> {
+  const admin = createAdminClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - 5);
+
+  const monthStart = new Date(today);
+  monthStart.setMonth(today.getMonth() - 4, 1);
+
+  const [bookings, jobOrders, stockMovements, dynoSessions] = await Promise.all([
+    list(admin.from("service_bookings").select("service_type, scheduled_date").gte("scheduled_date", weekStart.toISOString())),
+    list(admin.from("job_orders").select("status").gte("created_at", weekStart.toISOString())),
+    list(admin.from("stock_movements").select("movement_type, quantity, created_at").gte("created_at", weekStart.toISOString())),
+    list(admin.from("dyno_sessions").select("session_date").gte("session_date", monthStart.toISOString())),
+  ]);
+
+  const days = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + index);
+    return date;
+  });
+
+  const serviceVolume = days.map((date) => {
+    const key = date.toISOString().slice(0, 10);
+    const dayBookings = bookings.filter((booking: AnyRow) => typeof booking.scheduled_date === "string" && dateKey(booking.scheduled_date) === key);
+    return {
+      day: dayLabel(date),
+      PMS: dayBookings.filter((booking: AnyRow) => booking.service_type === "PMS").length,
+      Diagnostics: dayBookings.filter((booking: AnyRow) => booking.service_type === "Diagnostics").length,
+      Dyno: dayBookings.filter((booking: AnyRow) => String(booking.service_type ?? "").includes("Dyno")).length,
+    };
+  });
+
+  const jobStatus = ["Queued", "In Progress", "Waiting Parts", "For Approval", "Completed"].map((status) => ({
+    name: status,
+    value: jobOrders.filter((job: AnyRow) => job.status === status).length,
+  }));
+
+  const inventoryMovement = days.map((date) => {
+    const key = date.toISOString().slice(0, 10);
+    const movements = stockMovements.filter((movement: AnyRow) => typeof movement.created_at === "string" && dateKey(movement.created_at) === key);
+    return {
+      day: dayLabel(date),
+      Receive: movements.filter((movement: AnyRow) => movement.movement_type === "Receive").reduce((sum, movement: AnyRow) => sum + num(movement.quantity), 0),
+      Usage: movements.filter((movement: AnyRow) => movement.movement_type === "Usage").reduce((sum, movement: AnyRow) => sum + num(movement.quantity), 0),
+    };
+  });
+
+  const months = Array.from({ length: 5 }, (_, index) => {
+    const date = new Date(monthStart);
+    date.setMonth(monthStart.getMonth() + index);
+    return date;
+  });
+
+  const dynoTrend = months.map((date) => ({
+    month: monthLabel(date),
+    sessions: dynoSessions.filter((session: AnyRow) => {
+      if (typeof session.session_date !== "string") return false;
+      const sessionDate = new Date(session.session_date);
+      return sessionDate.getFullYear() === date.getFullYear() && sessionDate.getMonth() === date.getMonth();
+    }).length,
+  }));
+
+  return { serviceVolume, jobStatus, inventoryMovement, dynoTrend };
 }
 
 export async function getServiceBookings(): Promise<TableRow[]> {
@@ -296,5 +382,22 @@ export async function getAuditLogs(): Promise<TableRow[]> {
     timestamp: dateText(row.created_at),
     previous_value: row.previous_value || row.old_value ? "Stored JSON" : "-",
     new_value: row.new_value ? "Stored JSON" : "-",
+  }));
+}
+
+export async function getInspectionTemplates(): Promise<TableRow[]> {
+  const rows = await list(
+    createAdminClient()
+      .from("inspection_templates")
+      .select("name, description, categories(name), created_at")
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false }),
+  );
+
+  return rows.map((row: AnyRow) => ({
+    name: text(row.name),
+    description: text(row.description),
+    category: text(obj(row.categories).name),
+    created_at: dateText(row.created_at),
   }));
 }

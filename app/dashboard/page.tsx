@@ -3,12 +3,12 @@ export const dynamic = "force-dynamic";
 import { Boxes, CircleDollarSign, Gauge, Handshake, MessageSquare, Percent, TrendingUp, Users, Wrench } from "lucide-react";
 import { DashboardChartsDynamic } from "@/components/dashboard/charts-dynamic";
 import { KpiCard } from "@/components/dashboard/kpi-card";
-import { getDashboardMetrics } from "@/services/operations";
+import { getDashboardChartSeries, getDashboardMetrics } from "@/services/operations";
 
 const money = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
 
 export default async function DashboardPage() {
-  const metrics = await getDashboardMetrics();
+  const [metrics, chartSeries] = await Promise.all([getDashboardMetrics(), getDashboardChartSeries()]);
   return (
     <div className="space-y-7">
       <div className="engine-gradient relative overflow-hidden rounded-[20px] border border-[#d17e1d]/45 bg-white px-6 py-7 shadow-[0_18px_30px_rgba(120,35,36,0.10)] lg:grid lg:min-h-[360px] lg:grid-cols-[1fr_440px] lg:px-8">
@@ -56,7 +56,7 @@ export default async function DashboardPage() {
         <KpiCard label="Returning Customers" value={metrics.returningCustomers} icon={Users} detail="Customer records" />
         <KpiCard label="Open Notifications" value={metrics.openNotifications} icon={MessageSquare} detail="Unread alerts" />
       </div>
-      <DashboardChartsDynamic />
+      <DashboardChartsDynamic series={chartSeries} />
     </div>
   );
 }

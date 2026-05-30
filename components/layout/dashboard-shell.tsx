@@ -72,7 +72,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <div className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">EngineRus OS / Powered by Dynolab / Operations</div>
-        <main className="engine-frame p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-6 lg:p-8">{children}</main>
+        <main id="main-content" className="engine-frame p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

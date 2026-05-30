@@ -1,10 +1,12 @@
 import { Search } from "lucide-react";
-import { categories } from "@/constants/sample-data";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { getCategories } from "@/services/catalog";
 
-export function FilterBar({ action = "/", hideCategory = false }: { action?: string; hideCategory?: boolean }) {
+export async function FilterBar({ action = "/", hideCategory = false }: { action?: string; hideCategory?: boolean }) {
+  const categories = await getCategories();
+
   return (
     <form action={action} className="grid gap-3 border border-black/15 bg-white p-4 shadow-[8px_8px_0_rgba(0,0,0,0.08)] md:grid-cols-[1.3fr_repeat(5,1fr)_auto]">
       <div className="relative">

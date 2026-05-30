@@ -22,15 +22,19 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div className="relative aspect-[16/10] overflow-hidden rounded-lg border bg-muted">
-              <Image src={product.imageUrl} alt={product.name} fill className="object-cover" priority />
+              {product.imageUrl ? (
+                <Image src={product.imageUrl} alt={product.name} fill className="object-cover" priority />
+              ) : (
+                <div className="grid h-full place-items-center bg-[#181818] text-5xl font-black uppercase text-white">{product.brand}</div>
+              )}
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-3">
+            {product.imageUrl ? <div className="mt-4 grid grid-cols-3 gap-3">
               {[product.imageUrl, product.imageUrl, product.imageUrl].map((src, index) => (
                 <div key={index} className="relative aspect-video overflow-hidden rounded-md border bg-muted">
                   <Image src={src} alt={`${product.name} gallery ${index + 1}`} fill className="object-cover" />
                 </div>
               ))}
-            </div>
+            </div> : null}
           </div>
           <aside className="space-y-4">
             <div>

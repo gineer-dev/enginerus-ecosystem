@@ -8,13 +8,13 @@ export default async function ServicePage({ searchParams }: { searchParams: Prom
   const { submitted } = await searchParams;
 
   return (
-    <div className="min-h-screen bg-[#161616] text-black">
+    <div className="min-h-screen bg-[#f4eadc] text-black">
       <MarketplaceHeader />
-      <main className="mx-auto max-w-7xl bg-[#f4eadc] px-4 py-8 shadow-[0_40px_100px_rgba(0,0,0,0.36)] sm:px-6">
+      <main id="main-content" className="mx-auto max-w-7xl bg-[#f4eadc] px-4 py-6 shadow-[0_0_0_1px_rgba(0,0,0,0.08)] sm:px-6">
         <section className="grid overflow-hidden border border-black/15 bg-[#f7ecdc] lg:grid-cols-[0.9fr_1.1fr]">
           <div className="border-b border-black/15 p-8 lg:border-b-0 lg:border-r lg:p-10">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ef5b22]">Visayas Moto Hub Service</p>
-            <h1 className="mt-3 text-5xl font-black uppercase leading-[0.9] tracking-normal sm:text-6xl">
+            <h1 className="mt-3 text-4xl font-black uppercase leading-[0.9] tracking-normal sm:text-5xl">
               Send your motorcycle service request
             </h1>
             <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">

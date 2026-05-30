@@ -7,7 +7,7 @@
 Version: 1.0
 Status: Draft
 Product Owner: Dr. Engine R'us
-System Name: EngineRus OS
+System Name: Dr. Engine R'us
 
 ---
 

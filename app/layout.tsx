@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: {
-    default: "EngineRus OS",
-    template: "%s | EngineRus OS",
+    default: "Dr. Engine R'us",
+    template: "%s | Dr. Engine R'us",
   },
   description:
     "Internal motorcycle commerce and service operations platform for Dr. Engine R'us and Visayas Moto Hub.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    title: "EngineRus OS",
+    title: "Dr. Engine R'us",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -40,6 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="enginerus-shell min-h-full">
+        <a href="#main-content" className="skip-link">Skip to content</a>
         {children}
         <Toaster richColors position="top-right" />
         <PwaRegister />

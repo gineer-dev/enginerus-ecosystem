@@ -2,7 +2,7 @@
 
 :root {
   --background: #fbfaf7;
-  --foreground: #0d0d0d;
+  --foreground: #17120c;
   --card: #ffffff;
   --muted: #f5f1ea;
   --muted-foreground: #6e6860;
@@ -52,6 +52,34 @@ input,
 select,
 textarea {
   outline-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(255, 204, 0, 0.38);
+  color: #17120c;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 999;
+  transform: translateY(-160%);
+  border-radius: 0.5rem;
+  background: #17120c;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 .enginerus-shell {

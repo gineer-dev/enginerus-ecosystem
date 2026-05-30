@@ -2,7 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { authSchema, customerSchema, inquirySchema, jobOrderSchema, motorcycleSchema, publicServiceRequestSchema, reservationSchema, serviceBookingSchema } from "@/lib/validations/forms";
+import {
+  authSchema,
+  customerGarageMotorcycleSchema,
+  customerPortalRegisterSchema,
+  customerPortalServiceRequestSchema,
+  customerSchema,
+  inquirySchema,
+  jobOrderSchema,
+  motorcycleSchema,
+  publicServiceRequestSchema,
+  reservationSchema,
+  serviceBookingSchema,
+} from "@/lib/validations/forms";
 import { productSchema } from "@/lib/validations/product";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +41,94 @@ export async function signUp(formData: FormData) {
   if (error) redirect(`/register?error=${encodeURIComponent(error.message)}`);
   revalidatePath("/", "layout");
   redirect("/dashboard");
+}
+
+async function ensureCustomerAccount(payload: { full_name?: string | null; email: string; contact_number?: string | null; address?: string | null }) {
+  const supabase = createAdminClient();
+  const { data: existingCustomer, error: lookupError } = await supabase
+    .from("customers")
+    .select("id")
+    .eq("email", payload.email)
+    .maybeSingle();
+
+  if (lookupError) throw new Error(lookupError.message);
+  if (existingCustomer?.id) return existingCustomer.id;
+
+  const customerNumber = `CUS-${Date.now()}`;
+  const { data: customer, error } = await supabase
+    .from("customers")
+    .insert({
+      customer_number: customerNumber,
+      customer_id: customerNumber,
+      full_name: payload.full_name ?? payload.email.split("@")[0],
+      contact_number: payload.contact_number,
+      mobile_number: payload.contact_number,
+      email: payload.email,
+      address: payload.address ?? "Customer Portal",
+      customer_type: "Motorcycle Owner",
+      notes: "Created from Dr. Engine R'us Customer Portal",
+    })
+    .select("id")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return customer.id;
+}
+
+async function isStaffAccount(userId: string, email?: string | null) {
+  const supabase = createAdminClient();
+  const filters = [`id.eq.${userId}`, `user_id.eq.${userId}`];
+  if (email) filters.push(`email.eq.${email}`);
+
+  const { data, error } = await supabase.from("profiles").select("id").or(filters.join(",")).limit(1);
+  if (error) throw new Error(error.message);
+  return Boolean(data?.length);
+}
+
+export async function customerSignIn(formData: FormData) {
+  const payload = authSchema.parse(formObject(formData));
+  const redirectTo = formData.get("redirectTo");
+  const nextPath = typeof redirectTo === "string" && redirectTo.startsWith("/customer") ? redirectTo : "/customer/dashboard";
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword(payload);
+  if (error) redirect(`/customer/login?error=${encodeURIComponent(error.message)}`);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user && (await isStaffAccount(user.id, user.email))) {
+    await supabase.auth.signOut();
+    redirect("/customer/login?error=This email belongs to an EngineRus OS staff account. Use the internal login instead.");
+  }
+  await ensureCustomerAccount({ email: payload.email });
+  revalidatePath("/customer", "layout");
+  redirect(nextPath);
+}
+
+export async function customerSignUp(formData: FormData) {
+  const payload = customerPortalRegisterSchema.parse(formObject(formData));
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signUp({
+    email: payload.email,
+    password: payload.password,
+    options: {
+      data: {
+        full_name: payload.full_name,
+        portal: "customer",
+      },
+    },
+  });
+  if (error) redirect(`/customer/register?error=${encodeURIComponent(error.message)}`);
+  await ensureCustomerAccount(payload);
+  revalidatePath("/customer", "layout");
+  redirect("/customer/login?message=Check your email to confirm your customer account, then sign in.");
+}
+
+export async function customerResetPassword(formData: FormData) {
+  const email = String(formData.get("email") ?? "");
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error) redirect(`/customer/forgot-password?error=${encodeURIComponent(error.message)}`);
+  redirect("/customer/login?message=Password reset instructions have been sent to your email.");
 }
 
 export async function createProduct(formData: FormData) {
@@ -63,9 +163,19 @@ export async function createProduct(formData: FormData) {
 export async function createInquiry(formData: FormData) {
   const payload = inquirySchema.parse(formObject(formData));
   if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
+    const customerId = await ensureCustomerAccount({
+      full_name: payload.full_name,
+      email: payload.email,
+      contact_number: payload.contact_number,
+      address: "Marketplace inquiry",
+    });
     const { error } = await supabase.from("inquiries").insert({
       product_id: payload.product_id,
+      customer_id: customerId,
+      full_name: payload.full_name,
+      email: payload.email,
+      contact_number: payload.contact_number,
       message: payload.message,
       status: "New",
     });
@@ -78,11 +188,21 @@ export async function createInquiry(formData: FormData) {
 export async function createReservation(formData: FormData) {
   const payload = reservationSchema.parse(formObject(formData));
   if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
+    const customerId = await ensureCustomerAccount({
+      full_name: payload.full_name,
+      email: payload.email,
+      address: "Marketplace reservation",
+    });
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 7);
     const { error } = await supabase.from("reservations").insert({
       product_id: payload.product_id,
+      customer_id: customerId,
       reservation_fee: payload.reservation_fee,
+      expiry_date: expiryDate.toISOString(),
       status: "Pending",
+      notes: payload.notes,
     });
     if (error) throw new Error(error.message);
   }
@@ -118,6 +238,44 @@ export async function createMotorcycle(formData: FormData) {
   }
   revalidatePath("/dashboard/motorcycle-registry");
   redirect("/dashboard/motorcycle-registry");
+}
+
+export async function createCustomerGarageMotorcycle(formData: FormData) {
+  const payload = customerGarageMotorcycleSchema.parse(formObject(formData));
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) redirect("/customer/login?redirectTo=/customer/my-garage");
+
+  const customerId = await ensureCustomerAccount({ email: user.email, full_name: user.user_metadata?.full_name });
+
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const admin = createAdminClient();
+    const motorcycleCode = `DER-MOTO-${Date.now()}`;
+    const { data: motorcycle, error } = await admin
+      .from("motorcycles")
+      .insert({
+        ...payload,
+        motorcycle_code: motorcycleCode,
+        customer_id: customerId,
+      })
+      .select("id")
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    await admin.from("motorcycle_ownership_records").insert({
+      motorcycle_id: motorcycle.id,
+      owner_id: customerId,
+      ownership_type: "Owner",
+      remarks: "Added by customer through Dr. Engine R'us Customer Portal",
+    });
+  }
+
+  revalidatePath("/customer/my-garage");
+  redirect("/customer/my-garage");
 }
 
 export async function createServiceBooking(formData: FormData) {
@@ -204,6 +362,45 @@ export async function createPublicServiceRequest(formData: FormData) {
   revalidatePath("/service");
   revalidatePath("/dashboard/service-operations");
   redirect("/service?submitted=true");
+}
+
+export async function createCustomerPortalServiceRequest(formData: FormData) {
+  const payload = customerPortalServiceRequestSchema.parse(formObject(formData));
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) redirect("/customer/login?redirectTo=/customer/service-requests");
+
+  const customerId = await ensureCustomerAccount({ email: user.email, full_name: user.user_metadata?.full_name });
+  const admin = createAdminClient();
+  const { data: motorcycle, error: motorcycleError } = await admin
+    .from("motorcycles")
+    .select("id")
+    .eq("id", payload.motorcycle_id)
+    .eq("customer_id", customerId)
+    .maybeSingle();
+
+  if (motorcycleError) throw new Error(motorcycleError.message);
+  if (!motorcycle?.id) throw new Error("Motorcycle not found for this customer account.");
+
+  const { error } = await admin.from("service_bookings").insert({
+    booking_number: `DER-SVC-${Date.now()}`,
+    customer_id: customerId,
+    motorcycle_id: payload.motorcycle_id,
+    service_type: payload.service_type,
+    booking_type: "Online",
+    scheduled_date: payload.scheduled_date,
+    status: "Pending",
+    source: "Dr. Engine R'us Customer Portal",
+  });
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/customer/dashboard");
+  revalidatePath("/customer/service-requests");
+  redirect("/customer/service-requests?submitted=true");
 }
 
 export async function createJobOrder(formData: FormData) {
