@@ -3,6 +3,9 @@ export const dynamic = "force-dynamic";
 import { Gauge, ShieldCheck, Wrench } from "lucide-react";
 import { ServiceRequestForm } from "@/components/forms/service-request-form";
 import { MarketplaceHeader } from "@/components/layout/marketplace-header";
+import { visayasMotoHubPageMetadata } from "@/lib/metadata";
+
+export const metadata = visayasMotoHubPageMetadata("Service", "Send PMS, dyno, ECU, diagnostics, and motorcycle service requests to Visayas Moto Hub.");
 
 export default async function ServicePage({ searchParams }: { searchParams: Promise<{ submitted?: string }> }) {
   const { submitted } = await searchParams;

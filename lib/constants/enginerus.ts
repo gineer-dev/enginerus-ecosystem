@@ -13,6 +13,7 @@ import {
   Settings,
   ShoppingBag,
   Stethoscope,
+  UserCog,
   Users,
   Wrench,
 } from "lucide-react";
@@ -94,6 +95,7 @@ export const engineRusNav = [
   { href: "/dashboard/motorcycle-registry", label: "Motorcycle Registry", icon: PackageSearch },
   { href: "/dashboard/health-records", label: "Health Records", icon: Stethoscope },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
+  { href: "/dashboard/account-management", label: "Account Management", icon: UserCog },
   { href: "/dashboard/inventory", label: "Inventory", icon: Boxes },
   { href: "/dashboard/marketplace-sync", label: "Marketplace Sync", icon: ShoppingBag },
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
@@ -172,5 +174,12 @@ export const moduleSummaries = {
     description: "Medical-record-style motorcycle history with service, dyno, ECU, maintenance, replacement, upgrade, and attachment timelines.",
     actions: ["Service history", "Dyno history", "ECU history", "Maintenance schedule", "Attachments"],
     icon: Activity,
+  },
+  "account-management": {
+    title: "Customer Account Management",
+    eyebrow: "Portal access",
+    description: "Create customer portal accounts, track first-time login status, enforce password setup, reset temporary passwords, and audit account activities.",
+    actions: ["Customer accounts", "Create account", "Account status", "Password reset requests"],
+    icon: UserCog,
   },
 };

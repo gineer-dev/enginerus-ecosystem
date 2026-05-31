@@ -1,4 +1,7 @@
 export type UserRole =
+  | "Super Admin"
+  | "Admin"
+  | "Staff"
   | "Administrator"
   | "Service Advisor"
   | "Mechanic"

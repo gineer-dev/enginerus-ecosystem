@@ -5,6 +5,9 @@ import { MarketplaceHeader } from "@/components/layout/marketplace-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCategories } from "@/services/catalog";
 import { MoveRight } from "lucide-react";
+import { visayasMotoHubPageMetadata } from "@/lib/metadata";
+
+export const metadata = visayasMotoHubPageMetadata("Categories", "Browse brand-new motorcycle categories at Visayas Moto Hub.");
 
 export default async function CategoriesPage() {
   const categories = await getCategories();

@@ -98,6 +98,56 @@ export const customerPortalServiceRequestSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const customerAccountCreateSchema = z.object({
+  full_name: z.string().min(2),
+  mobile_number: z.string().min(7),
+  email: z.string().email(),
+  username: z.string().min(3).optional(),
+  temporary_password: z.string().min(8).optional(),
+  account_status: z.enum(["Active", "Disabled"]).default("Active"),
+});
+
+const strongPassword = z
+  .string()
+  .min(8, "Password must be at least 8 characters.")
+  .regex(/[A-Z]/, "Password must include an uppercase letter.")
+  .regex(/[a-z]/, "Password must include a lowercase letter.")
+  .regex(/[0-9]/, "Password must include a number.")
+  .regex(/[^A-Za-z0-9]/, "Password must include a special character.");
+
+export const internalAccountCreateSchema = z.object({
+  full_name: z.string().min(2),
+  mobile_number: z.string().min(7),
+  email: z.string().email(),
+  username: z.string().min(3).optional(),
+  temporary_password: z.string().min(8).optional(),
+  role_name: z.enum(["Super Admin", "Admin", "Staff", "Service Advisor", "Mechanic", "Dyno Technician", "Inventory Personnel", "Management"]),
+  account_status: z.enum(["Active", "Disabled"]).default("Active"),
+});
+
+export const internalAccountUpdateSchema = z.object({
+  id: z.string().uuid(),
+  full_name: z.string().min(2),
+  mobile_number: z.string().min(7),
+  email: z.string().email(),
+  username: z.string().min(3),
+  role_name: z.enum(["Super Admin", "Admin", "Staff", "Service Advisor", "Mechanic", "Dyno Technician", "Inventory Personnel", "Management"]),
+  account_status: z.enum(["Active", "Disabled"]),
+});
+
+export const customerSetupPasswordSchema = z
+  .object({
+    current_password: z.string().min(8),
+    new_password: strongPassword,
+    confirm_password: z.string().min(8),
+  })
+  .refine((payload) => payload.new_password === payload.confirm_password, {
+    message: "Passwords do not match.",
+    path: ["confirm_password"],
+  });
+
+export const internalSetupPasswordSchema = customerSetupPasswordSchema;
+
 export const jobOrderSchema = z.object({
   job_order_number: z.string().min(3),
   booking_id: z.string().uuid().optional(),

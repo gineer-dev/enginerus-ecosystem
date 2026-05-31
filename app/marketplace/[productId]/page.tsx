@@ -10,6 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProduct } from "@/services/catalog";
+import { visayasMotoHubPageMetadata } from "@/lib/metadata";
+
+export async function generateMetadata({ params }: { params: Promise<{ productId: string }> }) {
+  const { productId } = await params;
+  const product = await getProduct(productId);
+  return visayasMotoHubPageMetadata(product.name, product.description);
+}
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ productId: string }> }) {
   const { productId } = await params;

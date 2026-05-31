@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { Bell, ChevronsUpDown, Gauge, LogOut, Menu, Search, UserRound } from "lucide-react";
 import { engineRusNav } from "@/lib/constants/enginerus";
+import { canAccessDashboardPath } from "@/lib/permissions/rbac";
 import { Button } from "@/components/ui/button";
+import type { UserRole } from "@/types/domain";
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({ children, role, fullName }: { children: React.ReactNode; role?: string; fullName?: string }) {
+  const roles = role ? [role as UserRole] : [];
+  const visibleNav = engineRusNav.filter((item) => canAccessDashboardPath(roles, item.href));
+
   return (
     <div className="min-h-screen bg-background p-3 lg:p-5">
       <aside className="fixed inset-y-5 left-5 z-40 hidden w-72 overflow-hidden rounded-[20px] border-2 border-[#d17e1d]/70 bg-white/95 shadow-[0_18px_34px_rgba(52,18,18,0.16)] backdrop-blur-xl lg:block">
@@ -19,17 +24,34 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
         <nav className="h-[calc(100vh-8.5rem)] overflow-y-auto px-4 py-5">
-          {engineRusNav.map((item) => {
+          {visibleNav.map((item) => {
             const Icon = item.icon;
             return (
-              <Link
-                key={`${item.href}-${item.label}`}
-                href={item.href}
-                className="mb-1 flex h-11 items-center gap-3 rounded-lg px-4 text-sm font-semibold text-muted-foreground transition hover:bg-[#fff2c2] hover:text-foreground"
-              >
-                <Icon className="h-4 w-4 text-[#ef6b21]" />
-                {item.label}
-              </Link>
+              <div key={`${item.href}-${item.label}`}>
+                <Link
+                  href={item.href}
+                  className="mb-1 flex h-11 items-center gap-3 rounded-lg px-4 text-sm font-semibold text-muted-foreground transition hover:bg-[#fff2c2] hover:text-foreground"
+                >
+                  <Icon className="h-4 w-4 text-[#ef6b21]" />
+                  {item.label}
+                </Link>
+                {item.href === "/dashboard/account-management" ? (
+                  <div className="mb-2 ml-8 grid gap-1 border-l border-[#d17e1d]/25 pl-3">
+                    {[
+                      ["Internal Users", "/dashboard/account-management/internal-users"],
+                      ["Create Internal User", "/dashboard/account-management/create-internal-user"],
+                      ["Customer Accounts", "/dashboard/account-management/customer-accounts"],
+                      ["Create Customer Account", "/dashboard/account-management/create-customer-account"],
+                      ["Account Status", "/dashboard/account-management/account-status"],
+                      ["Password Reset Requests", "/dashboard/account-management/password-reset-requests"],
+                    ].map(([label, href]) => (
+                      <Link key={href} href={href} className="rounded-md px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-[#fff8e1] hover:text-foreground">
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             );
           })}
         </nav>
@@ -62,7 +84,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-4 w-4" />
             </Button>
             <Button variant="ghost" className="hidden h-12 gap-2 px-3 md:inline-flex" aria-label="User profile">
-              <UserRound className="h-4 w-4" /> Admin
+              <UserRound className="h-4 w-4" /> {fullName ?? role ?? "Admin"}
             </Button>
             <form action="/auth/signout" method="post">
               <Button variant="secondary" className="h-12 w-12 px-0" aria-label="Sign out">

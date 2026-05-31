@@ -6,18 +6,14 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { PwaRegister } from "@/components/layout/pwa-register";
+import { drEngineRusMetadata } from "@/lib/metadata";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Dr. Engine R'us",
-    template: "%s | Dr. Engine R'us",
-  },
-  description:
-    "Internal motorcycle commerce and service operations platform for Dr. Engine R'us and Visayas Moto Hub.",
+  ...drEngineRusMetadata,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

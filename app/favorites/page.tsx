@@ -3,6 +3,9 @@ export const dynamic = "force-dynamic";
 import { MarketplaceHeader } from "@/components/layout/marketplace-header";
 import { ProductCard } from "@/components/marketplace/product-card";
 import { getFavoriteProducts } from "@/services/catalog";
+import { visayasMotoHubPageMetadata } from "@/lib/metadata";
+
+export const metadata = visayasMotoHubPageMetadata("Favorites", "Saved Visayas Moto Hub motorcycle listings.");
 
 export default async function FavoritesPage() {
   const products = await getFavoriteProducts();

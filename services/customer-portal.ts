@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { currentCustomerAccount } from "@/services/customer-accounts";
 
 type AnyRow = Record<string, unknown>;
 
@@ -18,58 +18,19 @@ function motorcycleName(motorcycle?: AnyRow | null) {
   return [motorcycle.year_model, motorcycle.brand, motorcycle.model, motorcycle.variant].filter(Boolean).join(" ");
 }
 
-async function isStaffAccount(userId: string, email?: string | null) {
-  const admin = createAdminClient();
-  const filters = [`id.eq.${userId}`, `user_id.eq.${userId}`];
-  if (email) filters.push(`email.eq.${email}`);
-
-  const { data, error } = await admin.from("profiles").select("id").or(filters.join(",")).limit(1);
-  if (error) throw new Error(error.message);
-  return Boolean(data?.length);
-}
-
 async function currentCustomer() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) redirect("/customer/login?redirectTo=/customer/dashboard");
-  if (await isStaffAccount(user.id, user.email)) {
-    await supabase.auth.signOut();
-    redirect("/customer/login?error=This email belongs to an EngineRus OS staff account. Use the internal login instead.");
-  }
-
+  const { user, account } = await currentCustomerAccount();
   const admin = createAdminClient();
   const { data: customer, error } = await admin
     .from("customers")
     .select("id, customer_number, full_name, email, mobile_number, contact_number, address, customer_type")
-    .eq("email", user.email)
+    .eq("id", account.customer_id)
     .maybeSingle();
 
   if (error) throw new Error(error.message);
 
-  if (customer?.id) {
-    return { user, customer };
-  }
-
-  const customerNumber = `CUS-${Date.now()}`;
-  const { data: createdCustomer, error: createError } = await admin
-    .from("customers")
-    .insert({
-      customer_number: customerNumber,
-      customer_id: customerNumber,
-      full_name: user.user_metadata?.full_name ?? user.email.split("@")[0],
-      email: user.email,
-      address: "Customer Portal",
-      customer_type: "Motorcycle Owner",
-      notes: "Created automatically from Dr. Engine R'us Customer Portal",
-    })
-    .select("id, customer_number, full_name, email, mobile_number, contact_number, address, customer_type")
-    .single();
-
-  if (createError) throw new Error(createError.message);
-  return { user, customer: createdCustomer };
+  if (!customer?.id) redirect("/customer/login?error=Your customer record is missing. Please contact Dr. Engine R'us.");
+  return { user, customer };
 }
 
 export async function getCustomerPortalDashboard() {

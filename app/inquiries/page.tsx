@@ -3,6 +3,9 @@ export const dynamic = "force-dynamic";
 import { MarketplaceHeader } from "@/components/layout/marketplace-header";
 import { InquiryForm } from "@/components/forms/inquiry-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { visayasMotoHubPageMetadata } from "@/lib/metadata";
+
+export const metadata = visayasMotoHubPageMetadata("Inquiries", "Send a motorcycle inquiry to Visayas Moto Hub.");
 
 export default function InquiriesPage() {
   return (
